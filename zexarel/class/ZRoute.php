@@ -4,11 +4,11 @@ class ZRoute{
 	private static $_listMethod = [];
 
 	private static $_listUri = [];
-	
+
 	private static $_listCall = [];
-	
+
 	private static $_nameRoute = [];
-	
+
 	public static function get($uri, $function, $name = null){
 		$uri = trim($uri, '/\^$');
 		ZRoute::$_listMethod[] = "GET";
@@ -16,7 +16,7 @@ class ZRoute{
 		ZRoute::$_listCall[] = $function;
 		ZRoute::$_nameRoute[] = $name;
 	}
-	
+
 	public static function post($uri, $function, $name = null){
 		$uri = trim($uri, '/\^$');
 		ZRoute::$_listMethod[] = "POST";
@@ -24,7 +24,7 @@ class ZRoute{
 		ZRoute::$_listCall[] = $function;
 		ZRoute::$_nameRoute[] = $name;
 	}
-	
+
 	public static function getUri($name){
 		for($i = 0; $i < sizeof(ZRoute::$_nameRoute); $i++){
 			if(ZRoute::$_nameRoute[$i] == $name){
@@ -33,11 +33,11 @@ class ZRoute{
 		}
 		return "";
 	}
-	
+
 	public static function listen(){
 		$uri = isset($_REQUEST['uri']) ? $_REQUEST['uri'] : '/';
 		$uri = trim($uri, '/\^$');
-		
+
 		for($i = 0; $i < sizeof(ZRoute::$_listUri); $i++){
 			if(preg_match("#^".ZRoute::$_listUri[$i]."$#", $uri)){
 				if($_SERVER['REQUEST_METHOD'] == ZRoute::$_listMethod[$i]){
