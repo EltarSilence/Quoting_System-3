@@ -1,9 +1,48 @@
 @content
-
+<div class="col-md-12">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+          <main>
+            Homepage da sviluppare
+          </main>
+        </div>
+        <div class="col-md-4">
+          <main>
+            <div class="container" id="topWin">
+              <div id="vincita1">
+                <div>Top Vincite Settimanali</div>
+                <center>
+                  @for($i = 0; $i < count($weekWin); $i++)
+                  <div class="rank">
+            				<div class="img"></div>
+            				<div class="nome">{{ array_keys($weekWin[$i])[0] }}</div>
+            				<div class="coin">{{ $weekWin[$i][array_keys($weekWin[$i])[0]] }}<i class="icon icon-exacoin"></i></div>
+            			</div>
+                  @endfor
+              </div>
+              <div id="vincita2">
+                <div>Top Vincite Mensili</div>
+                  <center>
+                    @for($i = 0; $i < count($mouthWin); $i++)
+                    <div class="rank">
+              				<div class="img"></div>
+              				<div class="nome">{{ array_keys($mouthWin[$i])[0] !!}</div>
+              				<div class="coin">{{ $mouthWin[$i][array_keys($mouthWin[$i])[0]] }}}<i class="icon icon-exacoin"></i></div>
+              			</div>
+                    @endfor
+                </center>
+              </div>
+            </div>
+          </main>
+        </div>
+    </div>
+</div>
 @endcontent
 
-@css
-@endcss
-
 @js
+<script src="js/_topVincite.js"></script>
 @endjs
+
+@css
+<link href="css/_topVincite.css" rel="stylesheet">
+@endcss

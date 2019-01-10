@@ -52,8 +52,6 @@ class ZRoute{
 					}
 					call_user_func_array(ZRoute::$_listCall[$i], $arr);
 					exit();
-				}else{
-					die($_SERVER['SERVER_PROTOCOL']." 405 Method Not Allowed");
 				}
 			}
 		}

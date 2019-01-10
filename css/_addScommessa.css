@@ -1,0 +1,17 @@
+#quota_finale,
+#vincita{
+	font-weight: bold;
+	font-size: 22px;
+}
+#importo{
+	text-align: center;
+}
+.icon-cancel{
+  color: red;
+  float: right;
+  cursor: pointer;
+}
+#importo::-webkit-outer-spin-button,
+#importo::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}

@@ -36,9 +36,6 @@
 			$str = file_get_contents(ZView::$dir.$content.".html");
 			for($i = 0; $i < sizeof($match[1]); $i++){
 				$match[2][$i] = get_string_between($str, "@".$match[1][$i], "@end".$match[1][$i]);
-				if($match[1][$i] == "css"){
-					$match[2][$i] = "<style>".$match[2][$i]."</style>";
-				}
 			}
 			return $match;
 		}
