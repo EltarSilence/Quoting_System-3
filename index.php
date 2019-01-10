@@ -19,15 +19,17 @@ ZRoute::get("/scommetti", function (){
   View::getView("scommetti", "");
 }, "scommetti");
 ZRoute::get("/login", function (){
-  View::getView("home", "");
+  View::getView("login", "");
 }, "login");
 ZRoute::get("/logout", function (){
   View::getView("home", "");
 }, "logout");
 ZRoute::get("/register", function (){
-  View::getView("home", "");
+  View::getView("register", "");
 }, "register");
-
+ZRoute::get("/my-bet", function (){
+  View::getView("my-bet", "");
+}, "my-bet");
 /*  FUNZIONI  */
 ZRoute::post("/addScommessa", function (){
 
@@ -37,6 +39,11 @@ ZRoute::post("/addScommessa", function (){
 ZRoute::post("/login", function (){
 
 });
+ZRoute::post("/register", function (){
+
+});
+
+
 
 /*  AJAX  */
 ZRoute::post("/show_my_profile", function (){
