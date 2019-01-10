@@ -1,0 +1,22 @@
+.verifica{
+	margin: 0.5px;
+	width: 100%;
+}
+input[type=radio]{
+	display: none;
+}
+.intestazione{
+	color: black;
+	font-weight:bold;
+	text-align:center;
+}
+.click{
+	cursor: pointer;
+	text-align: center;
+}
+.click:hover{
+	background-color: #a7a7a7;
+}
+.click.active{
+	background-color: #68c368;
+}
