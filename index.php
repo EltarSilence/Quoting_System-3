@@ -9,6 +9,9 @@ ZRoute::get("/", function (){
 ZRoute::get("/home", function (){
   View::getView("home", "");
 }, "homepage");
+ZRoute::get("/scommetti", function (){
+  View::getView("home", "");
+}, "scommetti");
 
 
 /*           CHIAMATE AJAX            */
