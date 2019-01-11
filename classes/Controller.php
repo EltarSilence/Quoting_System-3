@@ -15,6 +15,7 @@ class Controller{
 				->execute();
 			if(sizeof($u) == 1){
 				ZAuth::createObject("user");
+				ZAuth::user()->id = $u[0]->id;
 				ZAuth::user()->name = $u[0]->name;
 				ZAuth::user()->coin = $u[0]->coin;
 				header("Location: home");
@@ -33,10 +34,8 @@ class Controller{
 
 	}
 
-/*
-  public function myBet(){
-      $userBets = Controller::getAllBetsBy(Auth::user()->id);
-
+  public static function myBet(){
+      $userBets = Controller::getAllBetsBy(ZAuth::user()->id);
       $scommesse = array();
 
       for ($i = 0; $i < count($userBets); $i++){
@@ -71,11 +70,9 @@ class Controller{
         $scommessa["multiple"] = $multiple;
         array_push($scommesse, $scommessa);
       }
-
-      return view('my-bet')
-        ->with('scommesse', $scommesse);
+      return $scommesse;
   }
-
+/*
   public static function getDisponibili(){
     $verifiche = Disponibili::whereDate('dalD', '<=', date('Y-m-d'))
     ->whereDate('alD', '>=', date('Y-m-d'))
@@ -175,10 +172,10 @@ class Controller{
 		if(sizeof($mult) > 0){
 			foreach ($mult as $m) {
 			  if($vin == 0){
-				return 0;
+					return 0;
 			  }
 			  if($vin < 0){
-				return -1;
+					return -1;
 			  }
 			  $vin *= Controller::isMultiplaWon($m);
 			}
@@ -253,18 +250,22 @@ class Controller{
     	->execute();
     return $bets;
   }
-	
-/*
+
   public static function getBetDetail($scommessa){
-    $mult = Multipla
-      ::leftJoin('risultatis', 'multiplas.chiaveM', '=', 'risultatis.chiaveR')
-      ->join('disponibilis', 'multiplas.chiaveM', 'LIKE', DB::raw('CONCAT(disponibilis.typeD, "%")'))
+		$db = new DB();
+
+d_var_dump($scommessa);
+
+		$mult = $db->select('risultatis.*', 'multiplas.*', 'disponibilis.*')
+			->from('multiplas')
+			->leftJoin('risultatis', 'multiplas.chiaveM', '=', 'risultatis.chiaveR')
+			->innerJoin('disponibilis', 'multiplas.chiaveM', 'LIKE', 'CONCAT(disponibilis.typeD, "%")')
       ->where('idScommessaM', '=', $scommessa->idS)
-      ->get();
+      ->execute();
 
     return $mult;
   }
-
+/*
   public static function addScommessa(){
     if(Auth::user()->coin >= Input::get('importo') + 100){
       $a = new Scommessa;
@@ -273,7 +274,7 @@ class Controller{
       $a->dataS = date('Y-m-d');
       $a->pagataS = 0;
       $a->save();
-      $ut = User
+      $ut = Use1r
         ::where('id', '=', Auth::user()->id)
         ->update(['coin' => Auth::user()->coin - Input::get('importo')]);
       $id = $a->id;

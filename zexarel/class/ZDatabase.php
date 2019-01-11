@@ -1,13 +1,13 @@
 <?php
 class ZDatabase{
-	
+
     protected $user = "root";
     protected $password = "";
 	protected $host = "localhost";
     protected $database = "test";
-	
+
 	private $conn;
-	
+
 	public function __construct() {
         $this->connect();
 		$this->selectDatabase($this->database);
@@ -18,23 +18,23 @@ class ZDatabase{
 	public function selectDatabase($db){
 		mysqli_select_db($this->conn, $db);
 	}
-	
+
 	private $select = [];
-	
+
 	private $distinct = false;
-	
+
 	private $from = "";
-	
+
 	private $where = [];
-	
+
 	private $groupBy = [];
-	
+
 	private $orderBy = [];
-	
+
 	private $join = [];
-	
+
 	private $error = [];
-	
+
 	public function select(...$field ){
 		foreach($field as $k => $v){
 			array_push($this->select, $v);
@@ -56,7 +56,7 @@ class ZDatabase{
 		if(!in_array($operator, ["=", ">", ">=", "<", "<=", "LIKE", "<>"])){
 			array_push($this->error, "Errore nell'operatore del WHERE");
 		}else{
-			$a = $this->haveErrorChar($compare);			
+			$a = $this->haveErrorChar($compare);
 			if($a == false){
 				array_push($this->error, "Errore nel campo di comparazione del WHERE");
 			}else{
@@ -65,9 +65,9 @@ class ZDatabase{
 				}
 				array_push($this->where, [$field, $operator, $a]);
 			}
-		}		
+		}
 		return $this;
-    }	
+    }
     public function groupBy($group_options){
         array_push($this->groupBy, $group_options);
 		return $this;
@@ -80,9 +80,9 @@ class ZDatabase{
 		if(!in_array($operator, ["=", ">", ">=", "<", "<=", "LIKE", "<>"])){
 			array_push($this->error, "Errore nell'operatore dell'INNER JOIN");
 		}else{
-			$a = $this->haveErrorChar($compare);			
+			$a = $this->haveErrorChar($compare);
 			if($a == false){
-				array_push($this->error, "Errore nel campo di comparazione dell'INNER JOIN");			
+				array_push($this->error, "Errore nel campo di comparazione dell'INNER JOIN");
 			}else{
 				if(gettype($compare) == 'string'){
 					if(strpos($a, ".") == false){
@@ -98,9 +98,9 @@ class ZDatabase{
 		if(!in_array($operator, ["=", ">", ">=", "<", "<=", "LIKE", "<>"])){
 			array_push($this->error, "Errore nell'operatore del LEFT JOIN");
 		}else{
-			$a = $this->haveErrorChar($compare);			
+			$a = $this->haveErrorChar($compare);
 			if($a == false){
-				array_push($this->error, "Errore nel campo di comparazione dell'LEFT JOIN");			
+				array_push($this->error, "Errore nel campo di comparazione dell'LEFT JOIN");
 			}else{
 				if(gettype($compare) == 'string'){
 					if(strpos($a, ".") == false){
@@ -108,7 +108,7 @@ class ZDatabase{
 					}
 				}
 				array_push($this->join, ["LEFT JOIN", $table, $on, $operator, $a]);
-				
+
 			}
 		}
 		return $this;
@@ -117,7 +117,7 @@ class ZDatabase{
 		if(!in_array($operator, ["=", ">", ">=", "<", "<=", "LIKE", "<>"])){
 			array_push($this->error, "Errore nell'operatore del RIGHT JOIN");
 		}else{
-			$a = $this->haveErrorChar($compare);			
+			$a = $this->haveErrorChar($compare);
 			if($a == false){
 				array_push($this->error, "Errore nel campo di comparazione dell'RIGHT JOIN");
 			}else{
@@ -127,18 +127,18 @@ class ZDatabase{
 					}
 				}
 				array_push($this->join, ["RIGHT JOIN", $table, $on, $operator, $a]);
-				
+
 			}
 		}
 		return $this;
 	}
-	
+
 	private $insert = [];
-	
+
 	private $into = "";
-	
+
 	private $value = [];
-	
+
 	public function insert($table, ...$field){
 		$this->into = $table;
 		foreach($field as $f){
@@ -149,7 +149,7 @@ class ZDatabase{
 	public function value(...$value){
 		$v = [];
 		foreach($value as $vv){
-			$a = $this->haveErrorChar($vv);			
+			$a = $this->haveErrorChar($vv);
 			if($a == false){
 				array_push($this->error, "Errore nel campo del VALUE");
 				return $this;
@@ -160,11 +160,11 @@ class ZDatabase{
 		array_push($this->value, $v);
 		return $this;
 	}
-	
+
 	private $update = "";
-	
+
 	private $set = [];
-	
+
 	public function update($table){
 		$this->update = $table;
 		return $this;
@@ -173,7 +173,7 @@ class ZDatabase{
 		array_push($this->set, [$field, $value]);
 		return $this;
 	}
-	
+
 	public function getSQL(){
 		if(sizeof($this->error) > 0){
 			throw new DataException("There is some error", $this->error);
@@ -187,11 +187,22 @@ class ZDatabase{
 							$sql .=  " ".$this->join[$i][0]." ".$this->join[$i][1]." ON ".$this->join[$i][2]." ".$this->join[$i][3]." ".$this->join[$i][4];
 						}
 					}
+					if(sizeof($this->where) > 0){
+						for($i = 0; $i < sizeof($this->where); $i++){
+							if($i == 0){
+								$sql .= " WHERE";
+							}
+							$sql .= " ".implode(" ", $this->where[$i]);
+							if($i < sizeof($this->where) - 1){
+								$sql .= " AND";
+							}
+						}
+					}
 					if(sizeof($this->groupBy)){
 						for($i = 0; $i < sizeof($this->groupBy); $i++){
 							if($i == 0){
 								$sql .= " GROUP BY";
-							}	
+							}
 							$sql .=  " ".$this->groupBy[$i];
 							if($i < sizeof($this->groupBy) - 1){
 								$sql .= ",";
@@ -202,21 +213,10 @@ class ZDatabase{
 						for($i = 0; $i < sizeof($this->orderBy); $i++){
 							if($i == 0){
 								$sql .= " ORDER BY";
-							}	
+							}
 							$sql .=  " ".$this->orderBy[$i];
 							if($i < sizeof($this->orderBy) - 1){
 								$sql .= ",";
-							}
-						}
-					}
-					if(sizeof($this->where) > 0){
-						for($i = 0; $i < sizeof($this->where); $i++){
-							if($i == 0){
-								$sql .= " WHERE";
-							}
-							$sql .= " ".implode(" ", $this->where[$i]);
-							if($i < sizeof($this->where) - 1){
-								$sql .= " AND";
 							}
 						}
 					}
@@ -268,22 +268,22 @@ class ZDatabase{
 						}
 					}
 				}
-			}else{	
+			}else{
 				//possibile ??
 			}
 			return $sql;
 		}
 	}
-	
+
 	public function execute(){
 		$sql = "";
 		$ret = [];
 		try{
 			$sql = $this->getSQL();
 			//d_var_dump($sql);
-			
+
 			$ret = $this->executeSql($sql);
-			
+
 		}catch(Exception $e){
 			d_var_dump($e);
 		}
@@ -300,14 +300,14 @@ class ZDatabase{
 		$this->value = [];
 		return $ret;
 	}
-	
+
 	private function haveErrorChar($str){
 		$p = ["--", ";", "({", "/*"];
 		foreach($p as $pp){
 			if(strpos($str, $pp) != false){
 				return false;
 			}
-		}		
+		}
 		return str_replace("'", "\'", $str);
 
 	}
@@ -340,7 +340,7 @@ class ZDatabase{
 					case 10 : //date YYYY-MM-DD
 					case 11 : //time HH:MM:SS
 					case 12 : //datetime YYYY-MM-DD HH:MM:SS
-					case 252: 
+					case 252:
 					case 253: //varchar
 					case 254: //char
 						$type[$info->name] = "string";

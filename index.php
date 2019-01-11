@@ -39,7 +39,8 @@ ZRoute::get("/register", function (){
 }, "register");
 
 ZRoute::get("/my-bet", function (){
-  View::getView("my-bet", "");
+  $s = Controller::myBet();
+  View::getView("my-bet", "", ['scommesse' => $s]);
 }, "my-bet");
 
 /*  FUNZIONI  */
