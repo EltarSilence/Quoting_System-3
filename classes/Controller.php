@@ -257,26 +257,25 @@ class Controller{
     	break;
     }
   }
-/*
+
   public static function getAllBetsBy($id){
-    $bets = Scommessa::where('idUtenteS', '=', $id)
-    ->orderBy('idS', 'desc')
-    ->get();
+		$db = new DB();
+		$bets = $db->select("*")
+			->from("scommessas")
+			->where('idUtenteS', '=', $id)
+    	->orderBy('idS', 'desc')
+    	->execute();
     return $bets;
   }
 
   public static function getBetDetail($scommessa){
 		$db = new DB();
-
-d_var_dump($scommessa);
-
 		$mult = $db->select('risultatis.*', 'multiplas.*', 'disponibilis.*')
 			->from('multiplas')
 			->leftJoin('risultatis', 'multiplas.chiaveM', '=', 'risultatis.chiaveR')
 			->innerJoin('disponibilis', 'multiplas.chiaveM', 'LIKE', 'CONCAT(disponibilis.typeD, "%")')
       ->where('idScommessaM', '=', $scommessa->idS)
       ->execute();
-
     return $mult;
   }
 /*
