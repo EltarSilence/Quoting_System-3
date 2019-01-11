@@ -6,13 +6,15 @@
                 <div class="card-header">Login</div>
                 <div class="card-body">
                     <form method="POST" action="login">
+                      @if(isset($er['er']))
+                        <div class="alert alert-danger">Errore di Autenticazione</div>
+                      @endif
                         <div class="form-group row">
                             <label for="email" class="col-sm-4 col-form-label text-md-right">Email</label>
                             <div class="col-md-6">
                                 <input id="email" type="email" class="form-control" name="email" required autofocus>
                             </div>
                         </div>
-
                         <div class="form-group row">
                             <label for="password" class="col-md-4 col-form-label text-md-right">Password</label>
                             <div class="col-md-6">

@@ -22,9 +22,9 @@ ZRoute::get("/scommetti", function (){
   View::getView("scommetti", "");
 }, "scommetti");
 
-ZRoute::get("/login", function (){
+ZRoute::get("/login", function ($data){
   if(ZAuth::user() == false){
-    View::getView("login", "");
+    View::getView("login", "", ['er' => $data]);
   }else{
     header("Location: home");
   }

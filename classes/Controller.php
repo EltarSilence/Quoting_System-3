@@ -6,12 +6,12 @@ class Controller{
 		$fv = new ZFormValidator();
 		$fv->addField(new Field('email', 'required', 'email'));
 		$fv->addField(new Field('password', 'required'));
-
 		if($fv->isValid($data)){
 			$db = new DB();
 			$u = $db->select("*")
 				->from("users")
 				->where("email", "=", $data['email'])
+				->where("password", "=", $data['password'])
 				->execute();
 			if(sizeof($u) == 1){
 				ZAuth::createObject("user");
@@ -19,7 +19,7 @@ class Controller{
 				ZAuth::user()->coin = $u[0]->coin;
 				header("Location: home");
 			}else{
-
+				header("Location: login?er=er");
 			}
 		}
 	}
