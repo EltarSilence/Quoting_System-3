@@ -3,6 +3,6 @@
 		protected $user = "root";
 		protected $password = "";
 		protected $host = "localhost";
-		protected $database = "qouting3";
+		protected $database = "quoting3";
 	}
 ?>

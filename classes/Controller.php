@@ -243,14 +243,18 @@ class Controller{
     	break;
     }
   }
-/*
+
   public static function getAllBetsBy($id){
-    $bets = Scommessa::where('idUtenteS', '=', $id)
-    ->orderBy('idS', 'desc')
-    ->get();
+		$db = new DB();
+		$bets = $db->select("*")
+			->from("scommessas")
+			->where('idUtenteS', '=', $id)
+    	->orderBy('idS', 'desc')
+    	->execute();
     return $bets;
   }
-
+	
+/*
   public static function getBetDetail($scommessa){
     $mult = Multipla
       ::leftJoin('risultatis', 'multiplas.chiaveM', '=', 'risultatis.chiaveR')
