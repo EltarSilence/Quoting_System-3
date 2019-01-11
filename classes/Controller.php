@@ -1,6 +1,38 @@
 <?php
 
 class Controller{
+
+	public static function login($data){
+		$fv = new ZFormValidator();
+		$fv->addField(new Field('email', 'required', 'email'));
+		$fv->addField(new Field('password', 'required'));
+
+		if($fv->isValid($data)){
+			$db = new DB();
+			$u = $db->select("*")
+				->from("users")
+				->where("email", "=", $data['email'])
+				->execute();
+			if(sizeof($u) == 1){
+				ZAuth::createObject("user");
+				ZAuth::user()->name = $u[0]->name;
+				ZAuth::user()->coin = $u[0]->coin;
+				header("Location: home");
+			}else{
+
+			}
+		}
+	}
+
+	public static function logout(){
+		ZAuth::destroyObject("user");
+		header("Location: home");
+	}
+
+	public static function register($data){
+
+	}
+
 /*
   public function myBet(){
       $userBets = Controller::getAllBetsBy(Auth::user()->id);
@@ -44,10 +76,6 @@ class Controller{
         ->with('scommesse', $scommesse);
   }
 
-  public function scommetti(){
-    return view('scommetti');
-  }
-
   public static function getDisponibili(){
     $verifiche = Disponibili::whereDate('dalD', '<=', date('Y-m-d'))
     ->whereDate('alD', '>=', date('Y-m-d'))
@@ -84,38 +112,45 @@ class Controller{
   }
 */
   public static function getWeekWin(){
-
+	$db = new DB();
     $ret = array();
-    $scom = Scommessa
-    ::join('users', 'users.id', '=', 'scommessas.idUtenteS')
-    ->whereDate('dataS', '>=', date("Y-m-d", strtotime(date("Y-m-d")."-7day")))
-    ->where('pagataS', 1)
-    ->get();
-    foreach ($scom as $s) {
-      $winCoin = Controller::isWon($s);
-      if($winCoin > 0){
-        array_push($ret, array($s->name => $winCoin));
-      }
-    }
+    $scom = $db
+		->select("scommessas.*", "users.*")
+		->from("scommessas")
+		->innerJoin('users', 'users.id', '=', 'scommessas.idUtenteS')
+		->where('dataS', '>=', date("Y-m-d", strtotime(date("Y-m-d")."-7day")))
+		->where('pagataS', '=', 1)
+		->execute();
+	if(sizeof($scom) > 0){
+		foreach ($scom as $s) {
+		  $winCoin = Controller::isWon($s);
+		  if($winCoin > 0){
+			array_push($ret, array($s->name => $winCoin));
+		  }
+		}
+	}
     usort($ret, "self::cmp");
     return $ret;
-
   }
 
   public static function getMouthWin(){
-    $ret = array();
-    $scom = Scommessa
-    ::join('users', 'users.id', '=', 'scommessas.idUtenteS')
-    ->whereDate('dataS', '>=', date("Y-m-d", strtotime(date("Y-m-d")."-30day")))
-    ->where('pagataS', 1)
-    ->get();
-
-    foreach ($scom as $s) {
-      $winCoin = Controller::isWon($s);
-      if($winCoin > 0){
-        array_push($ret, array($s->name => $winCoin));
-      }
-    }
+    $db = new DB();
+	$ret = array();
+    $scom = $db
+		->select("scommessas.*", "users.*")
+		->from("scommessas")
+		->innerJoin('users', 'users.id', '=', 'scommessas.idUtenteS')
+		->where('dataS', '>=', date("Y-m-d", strtotime(date("Y-m-d")."-30day")))
+		->where('pagataS', '=', 1)
+		->execute();
+	if(sizeof($scom) > 0){
+		foreach ($scom as $s) {
+		  $winCoin = Controller::isWon($s);
+		  if($winCoin > 0){
+			array_push($ret, array($s->name => $winCoin));
+		  }
+		}
+	}
     usort($ret, "self::cmp");
     return $ret;
   }
@@ -130,20 +165,26 @@ class Controller{
   }
 
   private static function isWon($scommessa){
-    $vin = 1;
-    $mult = Multipla
-      ::leftJoin('risultatis', 'multiplas.chiaveM', '=', 'risultatis.chiaveR')
-      ->where('idScommessaM', '=', $scommessa->idS)
-      ->get();
-    foreach ($mult as $m) {
-      if($vin == 0){
-        return 0;
-      }
-      if($vin < 0){
-        return -1;
-      }
-      $vin *= Controller::isMultiplaWon($m);
-    }
+    $db = new DB();
+	$vin = 1;
+    $mult = $db->select("risultatis.*", "multiplas.*")
+		->from("multiplas")
+		->leftJoin('risultatis', 'multiplas.chiaveM', '=', 'risultatis.chiaveR')
+		->where('idScommessaM', '=', $scommessa->idS)
+		->execute();
+	if(sizeof($mult) > 0){
+		foreach ($mult as $m) {
+		  if($vin == 0){
+			return 0;
+		  }
+		  if($vin < 0){
+			return -1;
+		  }
+		  $vin *= Controller::isMultiplaWon($m);
+		}
+	}else{
+		return 0;
+	}
     return $vin*$scommessa->coinS;
   }
 
@@ -152,7 +193,6 @@ class Controller{
     if (!isset($m->chiaveR)){
       return -1;
     }
-    //var_dump($chiave)
     $chiave = explode('_', $m->chiaveR);
     $tipo = $chiave[0];
     switch ($tipo) {
@@ -160,52 +200,51 @@ class Controller{
         $cat = $m->tipoM;
         switch ($cat){
           case 'ESATTO':
-          if ($m->valueM == $m->risultatoR){
-            return $vin = $vin*$m->quotaM;
-          }
-          else {
-            return 0;
-          }
-          break;
-          case 'UNDER':
-          $value = floatval($m->valueM);
-          $res = floatval($m->risultatoR);
+			  if ($m->valueM == $m->risultatoR){
+				return $vin = $vin*$m->quotaM;
+			  }
+			  else {
+				return 0;
+			  }
+			  break;
+			  case 'UNDER':
+			  $value = floatval($m->valueM);
+			  $res = floatval($m->risultatoR);
 
-          if ($res < $value) {
-            return $vin *= $m->quotaM;
-          }
-          else {
-            return 0;
-          }
-          break;
-        case 'OVER':
-          $value = floatval($m->valueM);
-          $res = floatval($m->risultatoR);
+			  if ($res < $value) {
+				return $vin *= $m->quotaM;
+			  }
+			  else {
+				return 0;
+			  }
+			  break;
+			case 'OVER':
+			  $value = floatval($m->valueM);
+			  $res = floatval($m->risultatoR);
 
-          if ($res > $value) {
-            return $vin *= $m->quotaM;
-          }
-          else {
-            return 0;
-          }
-          break;
-        default:
-          return 0;
-          break;
-      }
-      break;
+			  if ($res > $value) {
+				return $vin *= $m->quotaM;
+			  }
+			  else {
+				return 0;
+			  }
+			  break;
+			default:
+			  return 0;
+			  break;
+		  }
+		  break;
       case 'SN':
       case 'MT':
-      if ($m->risultatoR == $m->valueM){
-        return $vin = $vin*$m->quotaM;
-      }
-      else {
-        return 0;
-      }
-      break;
-
+		  if ($m->risultatoR == $m->valueM){
+			return $vin = $vin*$m->quotaM;
+		  }
+		  else {
+			return 0;
+		  }
+		  break;
       default:
-      return 0;
+		return 0;
       break;
     }
   }

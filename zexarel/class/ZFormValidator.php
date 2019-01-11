@@ -1,9 +1,9 @@
 <?php
 
 	class ZFormValidator{
-	
+
 		private $error;
-		
+
 		private $field;
 
 		public function __construct(){
@@ -24,7 +24,7 @@ VALIDATOR:
 		-date <
 		..
 		..
-	-is checkbox 
+	-is checkbox
 		-with compare selected value
 	-is a string
 		-strlen > compare
@@ -49,10 +49,10 @@ VALIDATOR:
 */
 
 
-		public function addField($val){	
+		public function addField($val){
 			array_push($this->field, $val);
 		}
-		
+
 		public function getErrors(){
 			return $this->error;
 		}
@@ -66,17 +66,17 @@ VALIDATOR:
 			return $valid;
 		}
 
-		
-	
+
+
 	}
-	
+
 	class Field{
 		public $field_name;
 		public $required = false;
 		public $type;
 		public $operator = [];
 		public $compare = [];
-		
+
 		public function __construct(...$variable){
 			$this->field_name = $variable[0];
 			for($i = 1; $i < sizeof($variable); $i++){
@@ -120,16 +120,16 @@ VALIDATOR:
 							$i++;
 						}else{
 							//add error
-						}						
+						}
 						break;
 					default:
 						$this->type = "string";
 						break;
-				}				
-			}		
+				}
+			}
 		}
-		
-		public function isValidWhit($data){			
+
+		public function isValidWhit($data){
 			if(array_key_exists($this->field_name, $data)){
 				$ret = true;
 				if($this->required){
@@ -141,7 +141,7 @@ VALIDATOR:
 				if($ret){
 					switch($this->type){
 						case "email":
-							if(preg_match("^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,6}$", $data[$this->field_name]) == false){
+							if(preg_match("/^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,6}$/", $data[$this->field_name]) == false){
 								$ret = false;
 								//add error
 							}
@@ -185,7 +185,7 @@ VALIDATOR:
 			}
 			return $ret;
 		}
-		
+
 	}
 
 ?>

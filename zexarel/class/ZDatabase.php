@@ -277,10 +277,10 @@ class ZDatabase{
 	
 	public function execute(){
 		$sql = "";
-		$ret = null;
+		$ret = [];
 		try{
 			$sql = $this->getSQL();
-			d_var_dump($sql);
+			//d_var_dump($sql);
 			
 			$ret = $this->executeSql($sql);
 			
@@ -368,7 +368,7 @@ class ZDatabase{
 		if(!empty($resultset)){
             return $resultset;
 		}else{
-			return null;
+			return [];
 		}
     }
 }
