@@ -112,7 +112,7 @@ class Controller{
   }
 */
   public static function getWeekWin(){
-	$db = new DB();
+		$db = new DB();
     $ret = array();
     $scom = $db
 		->select("scommessas.*", "users.*")
@@ -121,36 +121,36 @@ class Controller{
 		->where('dataS', '>=', date("Y-m-d", strtotime(date("Y-m-d")."-7day")))
 		->where('pagataS', '=', 1)
 		->execute();
-	if(sizeof($scom) > 0){
-		foreach ($scom as $s) {
-		  $winCoin = Controller::isWon($s);
-		  if($winCoin > 0){
-			array_push($ret, array($s->name => $winCoin));
-		  }
+		if(sizeof($scom) > 0){
+			foreach ($scom as $s) {
+			  $winCoin = Controller::isWon($s);
+			  if($winCoin > 0){
+				array_push($ret, array($s->name => $winCoin));
+			  }
+			}
 		}
-	}
     usort($ret, "self::cmp");
     return $ret;
   }
 
   public static function getMouthWin(){
     $db = new DB();
-	$ret = array();
+		$ret = array();
     $scom = $db
-		->select("scommessas.*", "users.*")
-		->from("scommessas")
-		->innerJoin('users', 'users.id', '=', 'scommessas.idUtenteS')
-		->where('dataS', '>=', date("Y-m-d", strtotime(date("Y-m-d")."-30day")))
-		->where('pagataS', '=', 1)
-		->execute();
-	if(sizeof($scom) > 0){
-		foreach ($scom as $s) {
-		  $winCoin = Controller::isWon($s);
-		  if($winCoin > 0){
-			array_push($ret, array($s->name => $winCoin));
-		  }
+			->select("scommessas.*", "users.*")
+			->from("scommessas")
+			->innerJoin('users', 'users.id', '=', 'scommessas.idUtenteS')
+			->where('dataS', '>=', date("Y-m-d", strtotime(date("Y-m-d")."-30day")))
+			->where('pagataS', '=', 1)
+			->execute();
+		if(sizeof($scom) > 0){
+			foreach ($scom as $s) {
+			  $winCoin = Controller::isWon($s);
+			  if($winCoin > 0){
+				array_push($ret, array($s->name => $winCoin));
+			  }
+			}
 		}
-	}
     usort($ret, "self::cmp");
     return $ret;
   }
@@ -166,25 +166,25 @@ class Controller{
 
   private static function isWon($scommessa){
     $db = new DB();
-	$vin = 1;
+		$vin = 1;
     $mult = $db->select("risultatis.*", "multiplas.*")
-		->from("multiplas")
-		->leftJoin('risultatis', 'multiplas.chiaveM', '=', 'risultatis.chiaveR')
-		->where('idScommessaM', '=', $scommessa->idS)
-		->execute();
-	if(sizeof($mult) > 0){
-		foreach ($mult as $m) {
-		  if($vin == 0){
+			->from("multiplas")
+			->leftJoin('risultatis', 'multiplas.chiaveM', '=', 'risultatis.chiaveR')
+			->where('idScommessaM', '=', $scommessa->idS)
+			->execute();
+		if(sizeof($mult) > 0){
+			foreach ($mult as $m) {
+			  if($vin == 0){
+				return 0;
+			  }
+			  if($vin < 0){
+				return -1;
+			  }
+			  $vin *= Controller::isMultiplaWon($m);
+			}
+		}else{
 			return 0;
-		  }
-		  if($vin < 0){
-			return -1;
-		  }
-		  $vin *= Controller::isMultiplaWon($m);
 		}
-	}else{
-		return 0;
-	}
     return $vin*$scommessa->coinS;
   }
 
@@ -200,52 +200,47 @@ class Controller{
         $cat = $m->tipoM;
         switch ($cat){
           case 'ESATTO':
-			  if ($m->valueM == $m->risultatoR){
-				return $vin = $vin*$m->quotaM;
-			  }
-			  else {
-				return 0;
-			  }
-			  break;
-			  case 'UNDER':
-			  $value = floatval($m->valueM);
-			  $res = floatval($m->risultatoR);
+			  		if ($m->valueM == $m->risultatoR){
+							return $vin = $vin*$m->quotaM;
+			  		}else {
+							return 0;
+			  		}
+			  		break;
+				  case 'UNDER':
+				  	$value = floatval($m->valueM);
+				  	$res = floatval($m->risultatoR);
+				  	if ($res < $value) {
+							return $vin *= $m->quotaM;
+				  	}else {
+							return 0;
+				  	}
+				  	break;
+				case 'OVER':
+				  $value = floatval($m->valueM);
+				  $res = floatval($m->risultatoR);
 
-			  if ($res < $value) {
-				return $vin *= $m->quotaM;
+				  if ($res > $value) {
+						return $vin *= $m->quotaM;
+				  }else {
+						return 0;
+				  }
+				  break;
+				default:
+				  return 0;
+				  break;
 			  }
-			  else {
-				return 0;
-			  }
-			  break;
-			case 'OVER':
-			  $value = floatval($m->valueM);
-			  $res = floatval($m->risultatoR);
-
-			  if ($res > $value) {
-				return $vin *= $m->quotaM;
-			  }
-			  else {
-				return 0;
-			  }
-			  break;
-			default:
-			  return 0;
-			  break;
-		  }
-		  break;
-      case 'SN':
+		  	break;
+    	case 'SN':
       case 'MT':
-		  if ($m->risultatoR == $m->valueM){
-			return $vin = $vin*$m->quotaM;
-		  }
-		  else {
-			return 0;
-		  }
-		  break;
+		  	if ($m->risultatoR == $m->valueM){
+					return $vin = $vin*$m->quotaM;
+		  	}else {
+					return 0;
+		  	}
+		  	break;
       default:
-		return 0;
-      break;
+				return 0;
+    	break;
     }
   }
 /*
