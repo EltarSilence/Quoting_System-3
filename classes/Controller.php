@@ -30,6 +30,23 @@ class Controller{
 	}
 
 	public static function register($data){
+		$isPwdOk = false;
+		$fv = new ZFormValidator();
+		$fv->addField(new Field('username', 'required'));
+		$fv->addField(new Field('email', 'required', 'email'));
+		$fv->addField(new Field('password', 'required'));
+		$fv->addField(new Field('password_confirmation', 'required'));
+		if ($data['password_confirmation'] == $data['password']){
+			$isPwdOk = true;
+		}
+		if ($fv->isValid($data) && $isPwdOk){
+			$db = new DB();
+			$sudo = $db->insert("users", "name", "email", "password", "coin")
+				->value("'".$data['username']."'", "'".$data['email']."'", "'".$data['password']."'", 5000)
+				->getSql();
+			$sudo = $db->executeSql('INSERT INTO users (name, email, password, coin) VALUES ("'.$data['username'].'" , "'.$data['email'].'", "'.$data['password'].'", 5000)');
+		}
+
 
 	}
 
@@ -243,18 +260,14 @@ class Controller{
     	break;
     }
   }
-
+/*
   public static function getAllBetsBy($id){
-		$db = new DB();
-		$bets = $db->select("*")
-			->from("scommessas")
-			->where('idUtenteS', '=', $id)
-    	->orderBy('idS', 'desc')
-    	->execute();
+    $bets = Scommessa::where('idUtenteS', '=', $id)
+    ->orderBy('idS', 'desc')
+    ->get();
     return $bets;
   }
-	
-/*
+
   public static function getBetDetail($scommessa){
     $mult = Multipla
       ::leftJoin('risultatis', 'multiplas.chiaveM', '=', 'risultatis.chiaveR')

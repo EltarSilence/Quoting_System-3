@@ -35,7 +35,11 @@ ZRoute::get("/logout", function (){
 }, "logout");
 
 ZRoute::get("/register", function (){
-  View::getView("register", "");
+  if (ZAuth::user() == false) {
+    View::getView("register", "");
+  } else {
+    header("Location: home");
+  }
 }, "register");
 
 ZRoute::get("/my-bet", function (){
@@ -50,8 +54,8 @@ ZRoute::post("/addScommessa", function (){
 ZRoute::post("/login", function ($data){
 	Controller::login($data);
 });
-ZRoute::post("/register", function (){
-
+ZRoute::post("/register", function ($data){
+  Controller::register($data);
 });
 
 ZRoute::listen();
