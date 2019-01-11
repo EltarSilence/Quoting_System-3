@@ -47,8 +47,6 @@ class Controller{
 				->getSql();
 			$sudo = $db->executeSql('INSERT INTO users (name, email, password, coin) VALUES ("'.$data['username'].'" , "'.$data['email'].'", "'.$data['password'].'", 5000)');
 		}
-
-
 	}
 
   public static function myBet(){

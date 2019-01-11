@@ -55,6 +55,7 @@ ZRoute::post("/addScommessa", function (){
 ZRoute::post("/login", function ($data){
 	Controller::login($data);
 });
+
 ZRoute::post("/register", function ($data){
   Controller::register($data);
 });
