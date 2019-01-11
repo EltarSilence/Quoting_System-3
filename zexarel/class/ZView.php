@@ -24,8 +24,8 @@
 			$str = preg_replace('/@for(.*)/', '<?php for$1{ ?>', $str);
 			$str = preg_replace('/@endfor/', '<?php } ?>', $str);
 			$str = preg_replace('/@if(.*)/', '<?php if$1{ ?>', $str);
+				$str = preg_replace('/@elseif(.*)/', '<?php }else if$1{ ?>', $str);
 			$str = preg_replace('/@else/', '<?php }else{ ?>', $str);
-			$str = preg_replace('/@elseif(.*)/', '<?php }else if$1{ ?>', $str);
 			$str = preg_replace('/@endif/', '<?php } ?>', $str);
 			$str = preg_replace('/{{{(.*)}}}/', '<?php $1; ?>', $str);
 			$str = preg_replace('/{{ (\S*) }}/', '<?php echo $1; ?>', $str);
