@@ -69,7 +69,6 @@
             {{ $scommesse[$i]['multiple'][$k]['descrizione'] }}:
             <b>{{ explode("-",$scommesse[$i]['multiple'][$k]['value'])[1] }}</b>
             - {{ $scommesse[$i]['multiple'][$k]['quota'] }}
-
             @if($scommesse[$i]['multiple'][$k]['isWon'] > 0)
               <span class="dot dot-won" data-toggle="tooltip" title="Vincente" data-placement="left"></span>
             @elseif($scommesse[$i]['multiple'][$k]['isWon'] == 0)

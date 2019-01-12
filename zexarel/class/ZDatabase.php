@@ -42,11 +42,11 @@ class ZDatabase{
 		return $this;
 	}
 	public function selectAll(){
-		$this->select("*");
+		return $this->select("*");
 	}
 	public function selectDistinct(...$field){
 		$this->distinct = true;
-		$this->select($field);
+		return $this->select($field);
 	}
 	public function from($table){
 		$this->from = $table;
@@ -57,7 +57,7 @@ class ZDatabase{
 			array_push($this->error, "Errore nell'operatore del WHERE");
 		}else{
 			$a = $this->haveErrorChar($compare);
-			if($a == false){
+			if($a == false && $a != 0){
 				array_push($this->error, "Errore nel campo di comparazione del WHERE");
 			}else{
 				if(gettype($compare) == 'string'){
@@ -81,7 +81,7 @@ class ZDatabase{
 			array_push($this->error, "Errore nell'operatore dell'INNER JOIN");
 		}else{
 			$a = $this->haveErrorChar($compare);
-			if($a == false){
+			if($a == false && $a != 0){
 				array_push($this->error, "Errore nel campo di comparazione dell'INNER JOIN");
 			}else{
 				if(gettype($compare) == 'string'){
@@ -99,7 +99,7 @@ class ZDatabase{
 			array_push($this->error, "Errore nell'operatore del LEFT JOIN");
 		}else{
 			$a = $this->haveErrorChar($compare);
-			if($a == false){
+			if($a == false && $a != 0){
 				array_push($this->error, "Errore nel campo di comparazione dell'LEFT JOIN");
 			}else{
 				if(gettype($compare) == 'string'){
@@ -118,7 +118,7 @@ class ZDatabase{
 			array_push($this->error, "Errore nell'operatore del RIGHT JOIN");
 		}else{
 			$a = $this->haveErrorChar($compare);
-			if($a == false){
+			if($a == false && $a != 0){
 				array_push($this->error, "Errore nel campo di comparazione dell'RIGHT JOIN");
 			}else{
 				if(gettype($compare) == 'string'){
@@ -150,7 +150,7 @@ class ZDatabase{
 		$v = [];
 		foreach($value as $vv){
 			$a = $this->haveErrorChar($vv);
-			if($a == false){
+			if($a == false && $a != 0){
 				array_push($this->error, "Errore nel campo del VALUE");
 				return $this;
 			}else{
@@ -252,7 +252,7 @@ class ZDatabase{
 			}else if(sizeof($this->update) > 0 && sizeof($this->set) > 0){
 				$sql = "UPDATE ".$this->update." SET";
 				for($i = 0; $i < sizeof($this->set); $i++){
-					$sql .= " ".implode(" ", $this->set[$i]);
+					$sql .= " ".implode(" = ", $this->set[$i]);
 					if($i != sizeof($this->set) - 1){
 						$sql .= ", ";
 					}

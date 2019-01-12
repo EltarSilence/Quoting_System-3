@@ -87,11 +87,14 @@ class Controller{
       }
       return $scommesse;
   }
-/*
+
   public static function getDisponibili(){
-    $verifiche = Disponibili::whereDate('dalD', '<=', date('Y-m-d'))
-    ->whereDate('alD', '>=', date('Y-m-d'))
-    ->get();
+		$db = new DB();
+    $verifiche = $db->select('*')
+			->from('disponibilis')
+			->where('dalD', '<=', date('Y-m-d'))
+    	->where('alD', '>=', date('Y-m-d'))
+    	->execute();
     $ret = array();
     foreach ($verifiche as $v) {
       $a = array();
@@ -103,15 +106,17 @@ class Controller{
       array_push($ret, $a);
     }
 
-    return $ret;
+    return json_encode($ret);
   }
 
-  public static function getScommessa(){
-    $key = Input::get('scommessa');
+  public static function getScommessa($data){
+		$db = new DB();
+		$key = $data['scommessa'];
 
-    $scom = Disponibili
-      ::where('typeD', '=', $key)
-      ->get();
+    $scom = $db->select("*")
+			->from("disponibilis")
+      ->where('typeD', '=', $key)
+      ->execute();
 
     $data = array();
     $data['type'] = $scom[0]->typeD;
@@ -120,9 +125,9 @@ class Controller{
     $data['filename'] = $key;
     $data['file'] = json_decode($scom[0]->fileD, true);
 
-    return $data;
+    return json_encode($data);
   }
-*/
+
   public static function getWeekWin(){
 		$db = new DB();
     $ret = array();
@@ -276,54 +281,67 @@ class Controller{
       ->execute();
     return $mult;
   }
-/*
-  public static function addScommessa(){
-    if(Auth::user()->coin >= Input::get('importo') + 100){
-      $a = new Scommessa;
-      $a->idUtenteS = Auth::user()->id;
-      $a->coinS = Input::get('importo');
-      $a->dataS = date('Y-m-d');
-      $a->pagataS = 0;
-      $a->save();
-      $ut = Use1r
-        ::where('id', '=', Auth::user()->id)
-        ->update(['coin' => Auth::user()->coin - Input::get('importo')]);
-      $id = $a->id;
-      for($i = 0; $i < sizeof(Input::get('chiave')); $i++){
-        $b = new Multipla;
-        $b->idScommessaM = $id;
-        $b->chiaveM = Input::get('chiave')[$i];
-        $b->tipoM = (strpos(Input::get('chiave')[$i], 'EUO_') !== false ? Input::get('type')[$i] : "");
-        $b->valueM = Input::get('value')[$i];
 
-        $t = explode("_", Input::get('chiave')[$i]);
+  public static function addScommessa($data){
 
-        switch($t[0]){
-          case "EUO":
-            $d = Disponibili::where('typeD', '=', $t[0]."_".$t[1])
-              ->get();
-            $j = json_decode($d[0]->fileD, true);
-            $b->quotaM = $j[$t[2]][Input::get('type')[$i]][Input::get('value')[$i]];
-            break;
-          case "SN":
-            $d = Disponibili::where('typeD', '=', $t[0]."_".$t[1])
-              ->get();
-            $j = json_decode($d[0]->fileD, true);
-            $b->quotaM = $j[$t[2]][Input::get('value')[$i]];
-            break;
-          case "MT":
-            $d = Disponibili::where('typeD', '=', $t[0]."_".$t[1])
-              ->get();
-            $j = json_decode($d[0]->fileD, true);
-            $b->quotaM = $j[explode("-", Input::get('value')[$i])[0]]['quota'];
-            break;
-        }
-        $b->save();
-      }
-      return redirect(route('home'));
-    }else{
+		if(ZAuth::user() != false){
+			$fv = new ZFormValidator();
+			$fv->addField(new Field('chiave', 'required'));
+			$fv->addField(new Field('type', 'required'));
+			$fv->addField(new Field('value', 'required'));
+			$fv->addField(new Field('importo', 'required', 'number', '<=', ZAuth::user()->coin - 100));
+			if($fv->isValid($data)){
+				$db = new DB();
 
-    }
-  }*/
+				$db->insert("scommessas", "idUtenteS", "coinS", "dataS", "pagataS")
+					->value(ZAuth::user()->id, $data['importo'], '"'.date('Y-m-d').'"', 0)
+					->execute();
+
+				$db->update("users")
+					->set("coin", ZAuth::user()->coin - $data['importo'])
+					->where("id", '=', ZAuth::user()->id)
+					->execute();
+
+				$ret = $db->select('*')
+					->from('users')
+					->where('id', '=', ZAuth::user()->id)
+					->execute();
+
+				ZAuth::user()->coin = $ret[0]->coin;
+
+				$id = $db->select('MAX(idS) AS idS')
+					->from("scommessas")
+					->execute()[0]->idS;
+
+	      for($i = 0; $i < sizeof($data['chiave']); $i++){
+					$quotaM = 0;
+
+					$t = explode("_", $data['chiave'][$i]);
+					$d = $db->selectAll()
+						->from('disponibilis')
+						->where('typeD', '=', $t[0]."_".$t[1])
+						->execute();
+					$j = json_decode($d[0]->fileD, true);
+					switch($t[0]){
+	          case "EUO":
+	            $quotaM = $j[$t[2]][$data['type'][$i]][$data['value'][$i]];
+	            break;
+	          case "SN":
+	            $quotaM = $j[$t[2]][$data['value'][$i]];
+	            break;
+	          case "MT":
+	            $quotaM = $j[explode("-", $data['value'][$i])[0]]['quota'];
+	            break;
+	        }
+					$db->insert('multiplas', 'idScommessaM', 'chiaveM', 'tipoM', 'valueM', 'quotaM')
+						->value($id, '"'.$data['chiave'][$i].'"', '"'.(strpos($data['chiave'][$i], 'EUO_') !== false ? $data['type'][$i] : "").'"', '"'.$data['value'][$i].'"', $quotaM)
+						->execute();
+	      }
+	      return header("Location: home");
+	    }else{
+
+	    }
+	  }
+	}
 
 }

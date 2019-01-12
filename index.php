@@ -48,8 +48,16 @@ ZRoute::get("/my-bet", function (){
 }, "my-bet");
 
 /*  FUNZIONI  */
-ZRoute::post("/addScommessa", function (){
+ZRoute::post("/getDisponibili", function (){
+  echo Controller::getDisponibili();
+});
 
+ZRoute::post("/getScommessa", function ($data){
+  echo Controller::getScommessa($data);
+});
+
+ZRoute::post("/addScommessa", function ($data){
+  Controller::addScommessa($data);
 });
 
 ZRoute::post("/login", function ($data){

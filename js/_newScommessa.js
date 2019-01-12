@@ -17,8 +17,9 @@ $(document).ready(function (){
 function setEmpty(){
 	var html = "";
 	$.ajax({
-		url : "/getDisponibili",
+		url : "getDisponibili",
 		type : "POST",
+		dataType: 'json',
 		data : {},
 		success : function(data){
 			if(data.length == 0){
@@ -52,7 +53,8 @@ function setEmpty(){
 function setVerifica(){
 	var html = "";
 	$.ajax({
-		url : "/getScommessa",
+		url : "getScommessa",
+		dataType: 'json',
 		type : "POST",
 		data : {'scommessa': $('#newScommessa').attr('ver')},
 		success : function(data){
