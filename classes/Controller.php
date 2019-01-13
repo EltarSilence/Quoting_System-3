@@ -56,7 +56,6 @@ class Controller{
       for ($i = 0; $i < count($userBets); $i++){
         $scommessa = array();
 
-        $scommessa["isWon"] = Controller::isWon($userBets[$i]);
         $scommessa["puntata"] = $userBets[$i]->coinS;
         $scommessa["data"] = $userBets[$i]->dataS;
         $scommessa["id"] = $userBets[$i]->idS;
@@ -65,6 +64,7 @@ class Controller{
         $mul = Controller::getBetDetail($userBets[$i]);
 
         $multiple = array();
+				$ww = 1;
         for($k = 0; $k < count($mul); $k++){
           $multipla = array();
           $multipla["id"] = $mul[$k]->idScommessaM;
@@ -79,10 +79,13 @@ class Controller{
           $multipla["descrizione"] = $mul[$k]->descrizioneD;
 
           $multipla["isWon"] = Controller::isMultiplaWon($mul[$k]);
-
+					$ww *= $multipla["isWon"];
           array_push($multiple, $multipla);
         }
         $scommessa["multiple"] = $multiple;
+
+				$scommessa["isWon"] = ($userBets[$i]->pagataS == 0 ? -1 : $ww);
+
         array_push($scommesse, $scommessa);
       }
       return $scommesse;
@@ -207,7 +210,7 @@ class Controller{
 
   private static function isMultiplaWon($m){
     $vin = 1;
-    if (!isset($m->chiaveR)){
+    if ($m->chiaveR == ""){
       return -1;
     }
     $chiave = explode('_', $m->chiaveR);
@@ -283,7 +286,6 @@ class Controller{
   }
 
   public static function addScommessa($data){
-
 		if(ZAuth::user() != false){
 			$fv = new ZFormValidator();
 			$fv->addField(new Field('chiave', 'required'));
