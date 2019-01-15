@@ -7,22 +7,26 @@ require_once "classes/DB.php";
 
 /*  VISTE */
 ZRoute::get("/", function (){
+  Controller::checkAndPay();
   $weekWin = Controller::getWeekWin();
   $mouthWin = Controller::getMouthWin();
   View::getView("home", "", ['weekWin' => $weekWin, 'mouthWin' => $mouthWin]);
 });
 
 ZRoute::get("/home", function (){
+  Controller::checkAndPay();
   $weekWin = Controller::getWeekWin();
   $mouthWin = Controller::getMouthWin();
   View::getView("home", "", ['weekWin' => $weekWin, 'mouthWin' => $mouthWin]);
 }, "homepage");
 
 ZRoute::get("/scommetti", function (){
+  Controller::checkAndPay();
   View::getView("scommetti", "");
 }, "scommetti");
 
 ZRoute::get("/login", function ($data){
+  Controller::checkAndPay();
   if(ZAuth::user() == false){
     View::getView("login", "", ['er' => $data]);
   }else{
@@ -31,10 +35,12 @@ ZRoute::get("/login", function ($data){
 }, "login");
 
 ZRoute::get("/logout", function (){
+  Controller::checkAndPay();
   Controller::logout();
 }, "logout");
 
 ZRoute::get("/register", function (){
+  Controller::checkAndPay();
   if (ZAuth::user() == false) {
     View::getView("register", "");
   } else {
@@ -43,12 +49,14 @@ ZRoute::get("/register", function (){
 }, "register");
 
 ZRoute::get("/my-bet", function (){
+  Controller::checkAndPay();
   $s = Controller::myBet();
   View::getView("my-bet", "", ['scommesse' => $s]);
 }, "my-bet");
 
 /*  FUNZIONI  */
 ZRoute::post("/getDisponibili", function (){
+  Controller::checkAndPay();
   echo Controller::getDisponibili();
 });
 

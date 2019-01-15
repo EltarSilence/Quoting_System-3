@@ -2,6 +2,38 @@
 
 class Controller{
 
+	public static function checkAndPay(){
+		$db = new DB();
+		$ret = $db->select('*')
+			->from('scommessas')
+			->where('pagataS', '=', 0)
+			->execute();
+		foreach ($ret as $k => $v) {
+			$w = Controller::isWon($v);
+			if($w == 0){
+				$db->update('scommessas')
+					->set('pagataS', 1)
+					->where('idS', '=', $v->idS)
+					->execute();
+			}elseif($w > 0){
+				$ret = $db->select('*')
+					->from('users')
+					->where('id', '=', $v->idUtenteS)
+					->execute()[0];
+
+				$db->update('users')
+					->set('coin', $ret->coin + $w)
+					->where('id', '=', $v->idUtenteS)
+					->execute();
+
+				$db->update('scommessas')
+					->set('pagataS', 1)
+					->where('idS', '=', $v->idS)
+					->execute();
+			}
+		}
+	}
+
 	public static function login($data){
 		$fv = new ZFormValidator();
 		$fv->addField(new Field('email', 'required', 'email'));
