@@ -30,6 +30,14 @@ class Controller{
 					->set('pagataS', 1)
 					->where('idS', '=', $v->idS)
 					->execute();
+
+				$ret = $db->select('*')
+					->from('users')
+					->where('id', '=', $v->idUtenteS)
+					->execute()[0];
+
+				ZAuth::user()->coin = $ret->coin;
+
 			}
 		}
 	}
