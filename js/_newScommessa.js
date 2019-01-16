@@ -27,7 +27,23 @@ function setEmpty(){
 			}else{
 				for(var i = 0; i < data.length; i++){
 					let chiave = data[i]['typeD'];
-					html += '<button class="btn btn-primary verifica" id="'+chiave+'">' + chiave + ' || ';
+					if (data[i]['descrizioneD'][0].substring(0,8) == '[CALCIO]') {
+						html += '<button class="btn btn-success verifica" id="'+chiave+'">';
+					}
+					else {
+						if (data[i]['descrizioneD'][0].substring(0,4) == '[R6]') {
+							html += '<button class="btn btn-info verifica" id="'+chiave+'">';
+						}
+						else {
+							if (data[i]['descrizioneD'][0].substring(0,6) == '[AP R6]') {
+								html += '<button class="btn btn-secondary verifica" id="'+chiave+'">';
+							}
+							else {
+								html += '<button class="btn btn-primary verifica" id="'+chiave+'">';
+							}
+						}
+					}
+
 					switch (data[i]['typeD'].split('_')[0]) {
 						case 'EUO':
 							html += data[i]['descrizioneD'][1] + ' - ' + data[i]['descrizioneD'][0];
